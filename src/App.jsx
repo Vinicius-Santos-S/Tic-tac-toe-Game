@@ -69,7 +69,7 @@ export function App() {
   const [WhoWinAndPosition , setWhoWinAndPosition] = useState({ winner: undefined, startLine: {x: 0, y:0}, endLine: {x: 0, y:0} })
   const [Njogadas, setNjogadas] = useState(0)
 
-  const CheckingWinningPositions = () => {
+  const checkingWinningPositions = () => {
     for(let line = 0; line < matriz.length ; line++){
       let somaColuna = ''
       let somaLinha = ''
@@ -85,86 +85,35 @@ export function App() {
         somaDiagonalDireita += matriz[colum][colum]
         somaDiagonalEsquerda += matriz[colum][matriz.length - 1 - colum];
 
-        if(somaLinha === 'XXX'){
-          let updatedPositionsAndWinner = { winner: 'X', startLine: {x: 0, y: line}, endLine: {x: colum, y: line}}; 
-          setWhoWinAndPosition(WhoWinAndPosition => ({
-            ...WhoWinAndPosition,
-            ...updatedPositionsAndWinner
-          }));
-          return null
-        }
-        else if(somaColuna === 'XXX'){
-          // inverteded because o the colum sum
-          let updatedPositionsAndWinner = { winner: 'X', startLine: {x: line, y: 0}, endLine: {x: line, y: colum}}; 
-          setWhoWinAndPosition(WhoWinAndPosition => ({
-            ...WhoWinAndPosition,
-            ...updatedPositionsAndWinner
-          }));
-          return null
-        }
-        else if(somaDiagonalDireita === 'XXX'){
-          let updatedPositionsAndWinner = { winner: 'X', startLine: {x: 0, y: 0}, endLine: {x: 2, y: 2}}; 
-          setWhoWinAndPosition(WhoWinAndPosition => ({
-            ...WhoWinAndPosition,
-            ...updatedPositionsAndWinner
-          }));
-          return null
-        }
-        else if(somaDiagonalEsquerda === 'XXX'){
-          let updatedPositionsAndWinner = { winner: 'X', startLine: {x: 0, y: 2}, endLine: {x: 2, y: 0}}; 
-          setWhoWinAndPosition(WhoWinAndPosition => ({
-            ...WhoWinAndPosition,
-            ...updatedPositionsAndWinner
-          }));
-          return null
-        }
-
-
-
-
-        
-
-
-
-        if(somaLinha === 'OOO'){
-          let updatedPositionsAndWinner = { winner: 'O', startLine: {x: 0, y: line}, endLine: {x: colum, y: line}}; 
-          setWhoWinAndPosition(WhoWinAndPosition => ({
-            ...WhoWinAndPosition,
-            ...updatedPositionsAndWinner
-          }));
-          return null
-        }
-        else if(somaColuna === 'OOO'){
-          // invertido para soma de colunas
-          let updatedPositionsAndWinner = { winner: 'O', startLine: {x: line, y: 0}, endLine: {x: line, y: colum}}; 
-          setWhoWinAndPosition(WhoWinAndPosition => ({
-            ...WhoWinAndPosition,
-            ...updatedPositionsAndWinner
-          }));
-          return null
-        }
-        else if(somaDiagonalDireita === 'OOO'){
-          let updatedPositionsAndWinner = { winner: 'O', startLine: {x: 0, y: 0}, endLine: {x: 2, y: 2}}; 
-          setWhoWinAndPosition(WhoWinAndPosition => ({
-            ...WhoWinAndPosition,
-            ...updatedPositionsAndWinner
-          }));
-          return null
-        }
-        else if(somaDiagonalEsquerda === 'OOO'){
-          let updatedPositionsAndWinner = { winner: 'O', startLine: {x: 0, y: 2}, endLine: {x: 2, y: 0}}; 
-          setWhoWinAndPosition(WhoWinAndPosition => ({
-            ...WhoWinAndPosition,
-            ...updatedPositionsAndWinner
-          }));
-          return null
+        function checkWinner(symbol) {
+          const winningTypesConditions = [
+            { condition: symbol.repeat(3) === somaLinha,            startLine: { x: 0, y: line }, endLine: { x: colum, y: line } },
+            { condition: symbol.repeat(3) === somaColuna,           startLine: { x: line, y: 0 }, endLine: { x: line, y: colum } },
+            { condition: symbol.repeat(3) === somaDiagonalDireita,  startLine: { x: 0, y: 0 },    endLine: { x: 2, y: 2 } },
+            { condition: symbol.repeat(3) === somaDiagonalEsquerda, startLine: { x: 0, y: 2 },    endLine: { x: 2, y: 0 } }
+          ];      
+          for (let winType of winningTypesConditions) {
+            if (winType.condition) {
+              return  { winner: symbol, startLine: winType.startLine, endLine: winType.endLine };
+            }
+          }
+          return null;
         }
         
+        let charsToTest = ['X', 'O']
+        let result = undefined
+        for(let char of charsToTest){
+          result = checkWinner(char)
+          if(result){
+            return result
+          }
+        }
       }
+
     }
   }
 
-  const CheckingIfDraw = () => {
+  const checkingIfDraw = () => {
     //After checking if have winners, check if it's a draw
     if(Njogadas === 8 && WhoWinAndPosition.winner === undefined){
       let newValue = { winner: 'draw'}
@@ -184,9 +133,15 @@ export function App() {
       setXorO(!XorO)
       setMatriz(newMatriz)
 
-      CheckingWinningPositions()
-      
-      CheckingIfDraw()
+      const checkingWinner = checkingWinningPositions()
+      if(checkingWinner){
+        setWhoWinAndPosition(WhoWinAndPosition => ({
+          ...WhoWinAndPosition,
+          ...checkingWinner
+        }))
+      }
+
+      checkingIfDraw()
     }
   }
 
