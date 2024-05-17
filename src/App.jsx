@@ -37,7 +37,6 @@ const Canvas = ( { positionsToDraw } ) => {
 
           const request = requestAnimationFrame(animate);
           if(counterX >= 50 + positionsToDraw.endLine.x * 100 && counterY >= 50 + positionsToDraw.endLine.y * 100  || (parseInt(counterY) == 49 && (positionsToDraw.startLine.x === 0 && positionsToDraw.startLine.y === 2))){
-            console.log("here")
             cancelAnimationFrame(request)
           }
           else {
@@ -85,7 +84,7 @@ export function App() {
         somaDiagonalDireita += matriz[colum][colum]
         somaDiagonalEsquerda += matriz[colum][matriz.length - 1 - colum];
 
-        function checkWinner(symbol) {
+        const checkWinner = (symbol) => {
           const winningTypesConditions = [
             { condition: symbol.repeat(3) === somaLinha,            startLine: { x: 0, y: line }, endLine: { x: colum, y: line } },
             { condition: symbol.repeat(3) === somaColuna,           startLine: { x: line, y: 0 }, endLine: { x: line, y: colum } },
@@ -117,10 +116,10 @@ export function App() {
     //After checking if have winners, check if it's a draw
     if(Njogadas === 8 && WhoWinAndPosition.winner === undefined){
       let newValue = { winner: 'draw'}
-      setWhoWinAndPosition({
+      setWhoWinAndPosition(WhoWinAndPosition => ({
         ...WhoWinAndPosition,
         ...newValue
-      })
+      }))
     }
   }
 
@@ -149,10 +148,10 @@ export function App() {
     setMatriz(Array(3).fill().map(() => Array(3).fill('')));
     setXorO(true)
     let originalValues = { winner: undefined, startLine: {x: 0, y:0}, endLine: {x: 0, y:0} }
-    setWhoWinAndPosition({
+    setWhoWinAndPosition(WhoWinAndPosition => ({
       ...WhoWinAndPosition,
       ...originalValues
-    })
+    }))
     setNjogadas(0)
   }
 
