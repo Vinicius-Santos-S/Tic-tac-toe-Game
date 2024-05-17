@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { AnimatePresence, animate, motion, useMotionValue } from 'framer-motion'
+import { AnimatePresence, motion } from 'framer-motion'
 import './style.css'
 
 
@@ -69,7 +69,7 @@ export function App() {
   const [WhoWinAndPosition , setWhoWinAndPosition] = useState({ winner: undefined, startLine: {x: 0, y:0}, endLine: {x: 0, y:0} })
   const [Njogadas, setNjogadas] = useState(0)
 
-  const CheckingEverything = () => {
+  const CheckingWinningPositions = () => {
     for(let line = 0; line < matriz.length ; line++){
       let somaColuna = ''
       let somaLinha = ''
@@ -78,12 +78,13 @@ export function App() {
 
       for(let colum = 0; colum < matriz[line].length ; colum++){
         somaLinha += matriz[line][colum]
-        // invertido para soma de colunas
+        // inverted for sum of the coluns
         somaColuna += matriz[colum][line]
-        // Soma diagonais
+
+        // Diagonal sums
         somaDiagonalDireita += matriz[colum][colum]
         somaDiagonalEsquerda += matriz[colum][matriz.length - 1 - colum];
-      
+
         if(somaLinha === 'XXX'){
           let updatedPositionsAndWinner = { winner: 'X', startLine: {x: 0, y: line}, endLine: {x: colum, y: line}}; 
           setWhoWinAndPosition(WhoWinAndPosition => ({
@@ -93,7 +94,7 @@ export function App() {
           return null
         }
         else if(somaColuna === 'XXX'){
-          // invertido para soma de colunas
+          // inverteded because o the colum sum
           let updatedPositionsAndWinner = { winner: 'X', startLine: {x: line, y: 0}, endLine: {x: line, y: colum}}; 
           setWhoWinAndPosition(WhoWinAndPosition => ({
             ...WhoWinAndPosition,
@@ -117,7 +118,14 @@ export function App() {
           }));
           return null
         }
+
+
+
+
         
+
+
+
         if(somaLinha === 'OOO'){
           let updatedPositionsAndWinner = { winner: 'O', startLine: {x: 0, y: line}, endLine: {x: colum, y: line}}; 
           setWhoWinAndPosition(WhoWinAndPosition => ({
@@ -156,14 +164,29 @@ export function App() {
     }
   }
 
+  const CheckingIfDraw = () => {
+    //After checking if have winners, check if it's a draw
+    if(Njogadas === 8 && WhoWinAndPosition.winner === undefined){
+      let newValue = { winner: 'draw'}
+      setWhoWinAndPosition({
+        ...WhoWinAndPosition,
+        ...newValue
+      })
+    }
+  }
+
+  //Getting position of click
   const handleClick = (lineIndex, colIndex) => {
-    if (WhoWinAndPosition.winner === undefined && matriz[lineIndex][colIndex] === '' && Njogadas < 9){
+    if (WhoWinAndPosition.winner === undefined && matriz[lineIndex][colIndex] === ''){
       setNjogadas(Njogadas + 1)
       const newMatriz = [...matriz];
       newMatriz[lineIndex][colIndex] = XorO ? 'X' : "O" 
       setXorO(!XorO)
       setMatriz(newMatriz)
-      CheckingEverything()    
+
+      CheckingWinningPositions()
+      
+      CheckingIfDraw()
     }
   }
 
@@ -200,7 +223,7 @@ export function App() {
               exit={{ opacity: 0 }}
               transition={{ duration : 0.2}}
             >
-              { WhoWinAndPosition.winner !== undefined ? WhoWinAndPosition.winner+" has won" : 'draw' }
+              { WhoWinAndPosition.winner !== 'draw' ? WhoWinAndPosition.winner+" has won" : 'Draw' }
             </motion.h2>
         }
       </AnimatePresence>
