@@ -1,21 +1,23 @@
 import { useState, useEffect, useRef } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
+import GithubLogo from './assets/github.svg?react'
+import LinkedinLogo from './assets/linkedin.svg?react'
 import './style.css'
 
 
 const Canvas = ( { positionsToDraw } ) => {
-    const canvasRef = useRef(undefined);
-    const [context, setContext] = useState(undefined)
-
-    useEffect(() => {
-      if(canvasRef.current){
-        canvasRef.current.width = 300; 
-        canvasRef.current.height = 300;
-        setContext(canvasRef.current.getContext("2d"));
-      }
-
-
-      if(positionsToDraw.winner !== undefined){
+  const canvasRef = useRef(undefined);
+  const [context, setContext] = useState(undefined)
+  
+  useEffect(() => {
+    if(canvasRef.current){
+      canvasRef.current.width = 300; 
+      canvasRef.current.height = 300;
+      setContext(canvasRef.current.getContext("2d"));
+    }
+    
+    
+    if(positionsToDraw.winner !== undefined){
         // { winner: 'X', startLine: x, y, endLine: x, y}
         // 100px to eachDiv
         // X = column Y = linha
@@ -23,18 +25,18 @@ const Canvas = ( { positionsToDraw } ) => {
         let counterY = 50 + positionsToDraw.startLine.y * 100
         let multiplier = 1
         context.beginPath();
-
+        
         const animate = () => {
           // console.log('x: ', parseInt(counterX),' para => ', 50 + positionsToDraw.endLine.x * 100, 'y: ',parseInt(counterY),' para => ', 50 + positionsToDraw.endLine.y * 100,)
           // console.log(positionsToDraw)
           // console.log(multiplier)
-
+          
           context.moveTo(50 + (positionsToDraw.startLine.x * 100), 50 + (positionsToDraw.startLine.y * 100)); // X, Y - End
           context.lineTo(parseInt(counterX), parseInt(counterY));
           context.strokeStyle = "white";
           context.lineWidth = 3;
           context.stroke();
-
+          
           const request = requestAnimationFrame(animate);
           if(counterX >= 50 + positionsToDraw.endLine.x * 100 && counterY >= 50 + positionsToDraw.endLine.y * 100  || (parseInt(counterY) == 49 && (positionsToDraw.startLine.x === 0 && positionsToDraw.startLine.y === 2))){
             cancelAnimationFrame(request)
@@ -46,7 +48,7 @@ const Canvas = ( { positionsToDraw } ) => {
             if(counterY < 50 + (positionsToDraw.endLine.y * 100)){
               counterY = counterY + 1 * multiplier
             }
-
+            
             if(counterY > 50 + (positionsToDraw.endLine.y * 100) && (positionsToDraw.startLine.x === 0 && positionsToDraw.startLine.y === 2)){
               counterY = counterY - 1 * multiplier
             }
@@ -60,14 +62,25 @@ const Canvas = ( { positionsToDraw } ) => {
     return (
       <canvas ref={canvasRef} id='grid-canvas'/>
     )
-}
-
+  }
+  
 export function App() {
-  const [matriz, setMatriz] = useState(Array(3).fill().map(() => Array(3).fill('')))
-  const [XorO, setXorO] = useState(true) // true for X and False for O 
-  const [WhoWinAndPosition , setWhoWinAndPosition] = useState({ winner: undefined, startLine: {x: 0, y:0}, endLine: {x: 0, y:0} })
-  const [Njogadas, setNjogadas] = useState(0)
+    const socialData = [
+      { 
+        logo: <GithubLogo className="svg"/>,
+        link: "https://github.com/Vinicius-Santos-S"
+      },
+      { 
+        logo: <LinkedinLogo className="svg"/>,
+        link: "www.linkedin.com/in/vini-santos-silva"
+      }
+    ]
 
+    const [matriz, setMatriz] = useState(Array(3).fill().map(() => Array(3).fill('')))
+    const [XorO, setXorO] = useState(true) // true for X and False for O 
+    const [WhoWinAndPosition , setWhoWinAndPosition] = useState({ winner: undefined, startLine: {x: 0, y:0}, endLine: {x: 0, y:0} })
+    const [Njogadas, setNjogadas] = useState(0)
+    
   const checkingWinningPositions = () => {
     for(let line = 0; line < matriz.length ; line++){
       let somaColuna = ''
@@ -157,6 +170,13 @@ export function App() {
 
   return (
     <div className='container'>
+      <ul className='social-container'>
+        {
+          socialData.map(item => (
+            <li><a href={item.link}>{item.logo}</a></li>
+          ))
+        }
+      </ul>
       <AnimatePresence initial={false} mode='wait'>
         {
           WhoWinAndPosition.winner === undefined && Njogadas < 9 ?
